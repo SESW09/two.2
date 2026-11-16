@@ -1,0 +1,39 @@
+
+{
+  "id": "./",
+  "name": "PhishGuard AI - 피싱·스미싱 위험 분석",
+  "short_name": "PhishGuard",
+  "description": "GPT 기반 피싱 및 스미싱 위험 분석과 예방을 위한 인공지능 보안 앱",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fc",
+  "theme_color": "#101d35",
+  "orientation": "any",
+  "lang": "ko-KR",
+  "categories": [
+    "education",
+    "security",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

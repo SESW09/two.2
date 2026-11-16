@@ -1,0 +1,2111 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101d35">
+  <meta name="description"
+        content="AI 기반 피싱 및 스미싱 위험 분석 서비스">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="default">
+
+  <title>PhishGuard AI</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <style>
+    :root {
+      --navy: #101d35;
+      --blue: #3468ee;
+      --bg: #f3f6fc;
+      --white: #ffffff;
+      --text: #17233b;
+      --muted: #718096;
+      --border: #e1e7f0;
+      --green: #159467;
+      --yellow: #c58516;
+      --red: #dc4353;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Malgun Gothic", "Apple SD Gothic Neo",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    button, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .app {
+      max-width: 780px;
+      margin: auto;
+      min-height: 100vh;
+      background: var(--bg);
+      padding-bottom: 105px;
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 25px 20px;
+      border-radius: 0 0 24px 24px;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.6px;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #b5c8e5;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fade .2s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 21px;
+      margin-bottom: 17px;
+      border: 1px solid var(--border);
+      box-shadow: 0 5px 20px rgba(20, 35, 65, .035);
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #17376f, #3468ee);
+      color: white;
+      padding: 29px 23px;
+    }
+
+    .hero h2 {
+      font-size: 25px;
+    }
+
+    .hero p {
+      color: #e2eaff;
+    }
+
+    .button {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      width: 100%;
+      transition: .15s;
+    }
+
+    .button:active {
+      transform: scale(.99);
+    }
+
+    .button.secondary {
+      background: #eaf0ff;
+      color: var(--blue);
+    }
+
+    .button.danger {
+      background: #ffedf0;
+      color: var(--red);
+    }
+
+    .button:focus-visible,
+    .nav button:focus-visible,
+    .manual-menu-button:focus-visible {
+      outline: 3px solid #8ab4ff;
+      outline-offset: 3px;
+    }
+
+    .hero .button {
+      background: white;
+      color: #2557be;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 175px;
+      border: 1px solid #ccd6e6;
+      border-radius: 13px;
+      padding: 15px;
+      resize: vertical;
+      outline: none;
+      background: #fbfcff;
+      color: var(--text);
+    }
+
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #3468ee18;
+    }
+
+    .between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 18px;
+    }
+
+    .chip {
+      background: #edf2fa;
+      border: 1px solid #dde5f3;
+      border-radius: 20px;
+      padding: 8px 12px;
+      color: #365071;
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 20px;
+      padding: 5px 11px;
+      background: #e9eef8;
+      color: #52647d;
+    }
+
+    .badge.low {
+      background: #e0f5ea;
+      color: var(--green);
+    }
+
+    .badge.medium {
+      background: #fff0d2;
+      color: var(--yellow);
+    }
+
+    .badge.high {
+      background: #ffe3e7;
+      color: var(--red);
+    }
+
+    .score {
+      font-size: 47px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .score small {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .progress {
+      height: 11px;
+      background: #e7ebf2;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 15px 0 9px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--blue);
+      border-radius: 20px;
+      transition: width .5s ease;
+    }
+
+    .progress-fill.low {
+      background: var(--green);
+    }
+
+    .progress-fill.medium {
+      background: var(--yellow);
+    }
+
+    .progress-fill.high {
+      background: var(--red);
+    }
+
+    ul {
+      padding-left: 21px;
+      margin: 8px 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .result {
+      display: none;
+    }
+
+    .result.visible {
+      display: block;
+    }
+
+    .notice {
+      background: #eaf1ff;
+      color: #31538b;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 12px;
+      background: #eff3f9;
+      font-size: 13px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .stat {
+      background: white;
+      padding: 18px;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+    }
+
+    .bar-row {
+      margin: 15px 0;
+    }
+
+    .bar-label {
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .history-item {
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-item p {
+      margin: 7px 0 0;
+      font-size: 13px;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 780px;
+      background: white;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 3px calc(10px + env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+
+    .nav button {
+      border: none;
+      background: transparent;
+      color: #8491a5;
+      font-size: 12px;
+      padding: 6px;
+      min-width: 51px;
+    }
+
+    .nav button.active {
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .nav .symbol {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 3px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small-button {
+      border: none;
+      background: transparent;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* =====================================
+       사용자 매뉴얼 전용 디자인
+    ===================================== */
+
+    .manual-hero {
+      background: linear-gradient(
+        135deg, #132950, #3468ee
+      );
+      color: white;
+      padding: 26px 22px;
+      border-radius: 18px;
+      margin-bottom: 17px;
+    }
+
+    .manual-hero h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .manual-hero p {
+      font-size: 14px;
+      color: #e1eaff;
+      margin-bottom: 0;
+    }
+
+    .manual-section {
+      background: white;
+      padding: 22px;
+      margin-bottom: 17px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .manual-section h3 {
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 15px;
+    }
+
+    .manual-section p,
+    .manual-section li {
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .manual-step {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+      padding: 15px 0;
+      border-bottom: 1px solid #edf0f5;
+    }
+
+    .manual-step:last-child {
+      border-bottom: none;
+    }
+
+    .manual-number {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: #eaf0ff;
+      color: #3468ee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    .manual-step-content {
+      flex: 1;
+    }
+
+    .manual-step-content strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .manual-step-content p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .manual-warning {
+      background: #fff6e8;
+      border: 1px solid #ffdfa8;
+      border-radius: 13px;
+      padding: 15px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .manual-tip {
+      background: #eaf2ff;
+      border-radius: 13px;
+      padding: 15px;
+      color: #31538b;
+      font-size: 14px;
+    }
+
+    .manual-faq {
+      border-bottom: 1px solid #edf0f5;
+      padding: 12px 0;
+    }
+
+    .manual-faq summary {
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .manual-faq p {
+      margin: 10px 0;
+      color: var(--muted);
+    }
+
+    .manual-menu-button {
+      background: #edf2ff;
+      color: #2858c5;
+      border: 1px solid #d9e4ff;
+      border-radius: 13px;
+      padding: 16px;
+      width: 100%;
+      text-align: left;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .manual-menu-button:hover {
+      background: #dfe9ff;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 14px;
+      }
+
+      .card, .manual-section {
+        padding: 17px;
+      }
+
+      .hero h2 {
+        font-size: 22px;
+      }
+
+      .nav button {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="brand">🛡 PhishGuard AI</div>
+    <div class="subtitle">
+      GPT 기반 피싱·스미싱 위험 분석 서비스
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- =====================================
+         1. 홈 화면
+    ===================================== -->
+
+    <section id="home" class="screen active">
+
+      <div class="card hero">
+        <h2>
+          의심스러운 문자,<br>
+          AI와 함께 확인하세요.
+        </h2>
+
+        <p>
+          피싱과 스미싱의 위험 신호를 분석하고
+          안전한 대응 방법을 알려드립니다.
+        </p>
+
+        <button class="button"
+                onclick="showScreen('analyze')">
+          AI 메시지 분석 시작
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>PhishGuard AI의 주요 기능</h3>
+
+        <p>🔎 GPT 기반 메시지 문맥 분석</p>
+        <p>📊 위험 신호 점수 시각화</p>
+        <p>🛡 의심 요소와 대응 방법 안내</p>
+        <p>📋 분석 기록 및 통계</p>
+        <p>📱 스마트폰 설치형 PWA</p>
+      </div>
+
+      <!-- 사용자 매뉴얼 바로가기 -->
+      <div class="card">
+        <h3>📖 처음 사용하시나요?</h3>
+
+        <p class="muted">
+          PhishGuard AI의 설치 방법과 사용 방법을
+          단계별로 확인하세요.
+        </p>
+
+        <button class="manual-menu-button"
+                onclick="showScreen('manual')">
+          📖 사용 방법 및 사용자 매뉴얼 보기 →
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>피싱 예방을 위한 기본 수칙</h3>
+
+        <ul>
+          <li>출처가 불분명한 링크는 열지 않기</li>
+          <li>인증번호와 비밀번호를 타인에게 전달하지 않기</li>
+          <li>기관을 사칭한 메시지는 공식 연락처로 확인하기</li>
+          <li>긴급한 송금 요구에는 특히 주의하기</li>
+        </ul>
+      </div>
+
+      <div class="notice">
+        AI 분석 결과는 참고용이며,
+        실제 사기 여부를 확정하거나
+        안전을 보장하지 않습니다.
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         2. AI 분석 화면
+    ===================================== -->
+
+    <section id="analyze" class="screen">
+
+      <div class="card">
+        <h2>AI 메시지 분석</h2>
+
+        <p class="muted">
+          피싱이 의심되는 문자 또는 이메일 내용을 입력하세요.
+          이름, 전화번호, 계좌번호 등은 미리 삭제하세요.
+        </p>
+
+        <label for="messageInput">
+          <strong>분석할 메시지</strong>
+        </label>
+
+        <textarea
+          id="messageInput"
+          maxlength="2500"
+          placeholder="예: [택배 안내] 배송지 오류가 발생했습니다. 지금 개인정보를 입력해 주세요."></textarea>
+
+        <div class="between">
+          <span class="muted" id="charCount">
+            0 / 2500자
+          </span>
+
+          <button class="small-button"
+                  onclick="clearInput()">
+            입력 초기화
+          </button>
+        </div>
+
+        <div class="chips">
+          <button class="chip" onclick="loadExample(0)">
+            택배 사칭 예시
+          </button>
+
+          <button class="chip" onclick="loadExample(1)">
+            금융 사칭 예시
+          </button>
+
+          <button class="chip" onclick="loadExample(2)">
+            일반 안내 예시
+          </button>
+        </div>
+
+        <button id="analyzeButton"
+                class="button"
+                onclick="startAnalysis()">
+          🔎 AI 위험 분석하기
+        </button>
+
+        <div id="analysisStatus"
+             class="status hidden"
+             style="margin-top:14px"
+             role="status"
+             aria-live="polite">
+        </div>
+      </div>
+
+      <!-- AI 분석 결과 -->
+      <div id="resultBox" class="result">
+
+        <div class="card">
+          <div class="between">
+            <h3>AI 분석 결과</h3>
+
+            <span id="riskBadge" class="badge">
+              분석 전
+            </span>
+          </div>
+
+          <div class="score">
+            <span id="riskScore">0</span>
+            <small> / 100</small>
+          </div>
+
+          <div class="progress">
+            <div id="riskProgress"
+                 class="progress-fill">
+            </div>
+          </div>
+
+          <p class="muted">
+            규칙 기반 위험 신호 점수이며
+            실제 사기 확률을 의미하지 않습니다.
+          </p>
+
+          <p id="resultSummary"></p>
+
+          <div class="between">
+            <span class="muted">의심 유형</span>
+            <strong id="resultCategory">-</strong>
+          </div>
+
+          <p class="muted" id="aiMode"></p>
+        </div>
+
+        <div class="card">
+          <h3>⚠ 발견된 의심 요소</h3>
+          <ul id="reasonList"></ul>
+        </div>
+
+        <div class="card">
+          <h3>✅ 권장 대응 방법</h3>
+          <ul id="actionList"></ul>
+        </div>
+
+        <div class="notice">
+          위험 신호가 적게 발견되더라도
+          안전한 메시지라고 단정할 수 없습니다.
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================
+         3. 분석 기록 화면
+    ===================================== -->
+
+    <section id="history" class="screen">
+
+      <div class="card">
+        <div class="between">
+          <h2>분석 기록</h2>
+
+          <button class="small-button"
+                  onclick="clearHistory()">
+            전체 삭제
+          </button>
+        </div>
+
+        <p class="muted">
+          이 브라우저에 저장된 분석 요약만 표시합니다.
+          메시지 원문은 저장하지 않습니다.
+        </p>
+
+        <div id="historyList"></div>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         4. 통계 화면
+    ===================================== -->
+
+    <section id="stats" class="screen">
+
+      <h2>분석 통계</h2>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="muted">총 분석 횟수</span>
+          <strong id="totalCount">0</strong>
+        </div>
+
+        <div class="stat">
+          <span class="muted">높은 위험 등급</span>
+          <strong id="highCount">0</strong>
+        </div>
+
+        <div class="stat">
+          <span class="muted">보통 위험 등급</span>
+          <strong id="mediumCount">0</strong>
+        </div>
+
+        <div class="stat">
+          <span class="muted">낮은 위험 등급</span>
+          <strong id="lowCount">0</strong>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>위험 등급별 분포</h3>
+        <div id="statsBars"></div>
+      </div>
+
+      <div class="card">
+        <h3>자주 발견된 위험 신호</h3>
+        <div id="signalStats"></div>
+      </div>
+
+      <div class="notice">
+        통계는 현재 기기의 로컬 분석 기록을
+        기준으로 계산합니다.
+        전체 사용자 통계는 아닙니다.
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         5. 설정 화면
+    ===================================== -->
+
+    <section id="settings" class="screen">
+
+      <div class="card">
+        <h2>앱 설정</h2>
+        <h3>서버 연결 상태</h3>
+
+        <div id="serverStatus" class="status">
+          서버 연결 확인 중
+        </div>
+
+        <button class="button secondary"
+                style="margin-top:12px"
+                onclick="connectBridge()">
+          서버 연결 다시 시도
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>스마트폰에 설치하기</h3>
+
+        <p class="muted">
+          PWA를 설치하면 홈 화면에서
+          일반 앱처럼 실행할 수 있습니다.
+        </p>
+
+        <button id="installButton"
+                class="button"
+                onclick="installApp()">
+          앱 설치하기
+        </button>
+      </div>
+
+      <!-- 설정에서 매뉴얼 접근 -->
+      <div class="card">
+        <h3>📖 사용자 매뉴얼</h3>
+
+        <p class="muted">
+          앱 소개, 설치 방법, 화면 설명,
+          기본 사용 방법 및 자주 묻는 질문을
+          확인할 수 있습니다.
+        </p>
+
+        <button class="button secondary"
+                onclick="showScreen('manual')">
+          사용 방법 확인하기
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>개인정보 및 데이터 관리</h3>
+
+        <p class="muted">
+          입력한 메시지는 분석을 위해
+          GAS 서버와 OpenAI API로 전송됩니다.
+          메시지 원문은 분석 기록에 저장하지 않습니다.
+        </p>
+
+        <button class="button danger"
+                onclick="clearHistory()">
+          내 분석 기록 삭제
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>앱 정보</h3>
+
+        <p>이름: PhishGuard AI</p>
+        <p>버전: 1.1.0</p>
+        <p>AI: OpenAI GPT</p>
+        <p>프론트엔드: HTML · CSS · JavaScript</p>
+        <p>백엔드: Google Apps Script</p>
+        <p>배포: GitHub Pages · PWA</p>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         6. 사용자 매뉴얼 화면
+         수행평가 평가 요소 ④
+    ===================================== -->
+
+    <section id="manual" class="screen">
+
+      <div class="manual-hero">
+        <h2>📖 사용자 매뉴얼</h2>
+
+        <p>
+          PhishGuard AI를 처음 사용하는 사람도
+          쉽게 따라 할 수 있도록 안내합니다.
+        </p>
+      </div>
+
+
+      <!-- 6-1. 프로그램 소개 -->
+      <div class="manual-section">
+        <h3>🛡 1. 프로그램 소개</h3>
+
+        <p>
+          <strong>PhishGuard AI</strong>는
+          인공지능을 활용하여 문자 메시지와
+          이메일의 피싱·스미싱 위험 신호를
+          분석하는 보안 교육용 프로그램입니다.
+        </p>
+
+        <p>
+          GPT 인공지능과 규칙 기반 분석을 결합하여
+          의심스러운 메시지의 특징을 파악하고,
+          사용자에게 위험 수준과 판단 근거,
+          안전한 대응 방법을 알려줍니다.
+        </p>
+
+        <p>
+          <strong>주요 사용자:</strong>
+          학생, 교사, 일반 사용자
+        </p>
+
+        <p>
+          <strong>개발 목적:</strong>
+          피싱 및 스미싱 예방과
+          개인정보 보호 의식 향상
+        </p>
+
+        <div class="manual-tip">
+          💡 이 프로그램은 실제 사기 여부를
+          확정하는 서비스가 아니라
+          위험 신호를 이해하도록 돕는 앱입니다.
+        </div>
+      </div>
+
+
+      <!-- 6-2. 접속 및 설치 -->
+      <div class="manual-section">
+        <h3>📱 2. 접속 및 설치 방법</h3>
+
+        <p>
+          PhishGuard AI는 별도의 프로그램
+          설치 없이 웹브라우저에서 사용할 수 있습니다.
+        </p>
+
+        <div class="manual-step">
+          <span class="manual-number">1</span>
+          <div class="manual-step-content">
+            <strong>웹사이트 접속</strong>
+            <p>
+              GitHub Pages에 배포된
+              PhishGuard AI 웹사이트에 접속합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">2</span>
+          <div class="manual-step-content">
+            <strong>앱 실행</strong>
+            <p>
+              홈페이지가 나타나면
+              'AI 메시지 분석 시작' 버튼을 눌러
+              프로그램을 이용할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">3</span>
+          <div class="manual-step-content">
+            <strong>스마트폰 설치</strong>
+            <p>
+              브라우저의 앱 설치 기능을 사용하면
+              홈 화면에서 PhishGuard AI를
+              실행할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:20px">
+          Android 설치 방법
+        </h3>
+
+        <ol>
+          <li>Chrome 브라우저에서 앱에 접속합니다.</li>
+          <li>브라우저의 메뉴를 엽니다.</li>
+          <li>'앱 설치' 또는 '홈 화면에 추가'를 선택합니다.</li>
+          <li>설치 후 홈 화면에서 앱을 실행합니다.</li>
+        </ol>
+
+        <h3>iPhone 및 iPad 설치 방법</h3>
+
+        <ol>
+          <li>Safari 브라우저에서 앱에 접속합니다.</li>
+          <li>공유 메뉴를 선택합니다.</li>
+          <li>'홈 화면에 추가'를 선택합니다.</li>
+          <li>추가를 완료하고 홈 화면에서 앱을 실행합니다.</li>
+        </ol>
+
+        <div class="manual-tip">
+          💡 기기나 브라우저 버전에 따라
+          설치 메뉴의 이름과 위치가 다를 수 있습니다.
+          AI 분석에는 인터넷 연결이 필요합니다.
+        </div>
+      </div>
+
+
+      <!-- 6-3. 화면별 설명 -->
+      <div class="manual-section">
+        <h3>🖥 3. 화면 구성 설명</h3>
+
+        <div class="manual-step">
+          <span class="manual-number">⌂</span>
+          <div class="manual-step-content">
+            <strong>홈 화면</strong>
+            <p>
+              프로그램 소개와 주요 기능,
+              피싱 예방 수칙을 확인합니다.
+              'AI 메시지 분석 시작' 버튼으로
+              분석 화면에 이동할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">⌕</span>
+          <div class="manual-step-content">
+            <strong>AI 분석 화면</strong>
+            <p>
+              메시지 입력창에 문자 내용을 붙여넣고
+              'AI 위험 분석하기' 버튼을 누릅니다.
+              예시 버튼으로 테스트할 수도 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">▤</span>
+          <div class="manual-step-content">
+            <strong>분석 기록 화면</strong>
+            <p>
+              이전 분석의 날짜, 위험 등급,
+              규칙 기반 점수를 확인합니다.
+              '전체 삭제' 버튼으로 기록을 지울 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">▥</span>
+          <div class="manual-step-content">
+            <strong>통계 화면</strong>
+            <p>
+              총 분석 횟수, 위험 등급별 분포,
+              자주 발견된 위험 신호를
+              그래프로 확인할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">⚙</span>
+          <div class="manual-step-content">
+            <strong>설정 화면</strong>
+            <p>
+              서버 연결 상태를 확인하고,
+              앱 설치, 기록 삭제,
+              사용자 매뉴얼 기능을 이용합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- 6-4. 기본 사용 방법 -->
+      <div class="manual-section">
+        <h3>🔎 4. 기본 사용 방법</h3>
+
+        <p>
+          다음 3단계만 따라 하면
+          메시지 위험 분석을 진행할 수 있습니다.
+        </p>
+
+        <div class="manual-step">
+          <span class="manual-number">1</span>
+          <div class="manual-step-content">
+            <strong>메시지 입력</strong>
+            <p>
+              하단 'AI 분석' 메뉴를 선택합니다.
+              메시지 입력창에 의심스러운 문자 또는
+              이메일을 붙여넣습니다.
+              개인정보는 먼저 삭제합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">2</span>
+          <div class="manual-step-content">
+            <strong>AI 분석 실행</strong>
+            <p>
+              'AI 위험 분석하기' 버튼을 누릅니다.
+              서버가 연결되어 있으면
+              규칙 기반 탐지와 GPT 분석을 시작합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="manual-step">
+          <span class="manual-number">3</span>
+          <div class="manual-step-content">
+            <strong>결과 확인</strong>
+            <p>
+              위험 점수, 위험 등급, 의심 요소,
+              권장 대응 방법을 확인합니다.
+              결과는 참고용으로 활용합니다.
+            </p>
+          </div>
+        </div>
+
+        <button class="button"
+                style="margin-top:18px"
+                onclick="showScreen('analyze')">
+          직접 AI 분석해 보기
+        </button>
+      </div>
+
+
+      <!-- 6-5. 점수와 등급 -->
+      <div class="manual-section">
+        <h3>📊 5. 위험 점수와 등급 이해하기</h3>
+
+        <p>
+          규칙 기반 분석에서는
+          발견된 의심 표현을 바탕으로
+          0~100점의 참고 점수를 계산합니다.
+        </p>
+
+        <p>
+          🟢 <strong>0~29점:</strong>
+          낮은 위험 신호
+        </p>
+
+        <p>
+          🟡 <strong>30~59점:</strong>
+          주의가 필요한 위험 신호
+        </p>
+
+        <p>
+          🔴 <strong>60~100점:</strong>
+          높은 위험 신호
+        </p>
+
+        <div class="manual-warning">
+          ⚠️ 위험 점수와 AI 위험 등급은
+          서로 다른 분석 방식으로 계산되므로
+          결과가 다를 수 있습니다.
+          점수가 낮더라도 안전하다는 뜻은 아닙니다.
+        </div>
+      </div>
+
+
+      <!-- 6-6. 주의사항 -->
+      <div class="manual-section">
+        <h3>⚠️ 6. 사용 시 주의사항</h3>
+
+        <ul>
+          <li>
+            실제 비밀번호, 인증번호, 계좌번호,
+            주민등록번호 등은 입력하지 마세요.
+          </li>
+
+          <li>
+            메시지 안의 의심스러운 링크를
+            직접 클릭하지 마세요.
+          </li>
+
+          <li>
+            AI 분석 결과가 반드시 정확한 것은 아니므로
+            참고 자료로 활용하세요.
+          </li>
+
+          <li>
+            메시지의 안전 여부는 공식 앱이나
+            공식 연락처를 통해 추가 확인하세요.
+          </li>
+
+          <li>
+            인터넷 연결이 없으면 GPT 기반
+            분석 기능을 사용할 수 없습니다.
+          </li>
+
+          <li>
+            분석 요약 기록은 사용하는 기기에
+            저장되며 설정에서 삭제할 수 있습니다.
+          </li>
+        </ul>
+      </div>
+
+
+      <!-- 6-7. FAQ -->
+      <div class="manual-section">
+        <h3>❓ 7. 자주 묻는 질문</h3>
+
+        <details class="manual-faq">
+          <summary>Q1. AI 분석이 실행되지 않아요.</summary>
+          <p>
+            인터넷 연결과 GAS 서버 연결 상태를
+            확인하세요. 설정 메뉴에서
+            '서버 연결 다시 시도'를 선택할 수 있습니다.
+            API 사용량 제한에 도달했을 수도 있습니다.
+          </p>
+        </details>
+
+        <details class="manual-faq">
+          <summary>Q2. 위험 점수가 낮으면 안전한가요?</summary>
+          <p>
+            아닙니다. 점수가 낮아도 피싱 메시지일
+            가능성이 있습니다.
+            점수는 탐지된 의심 표현을 나타내는
+            참고 지표입니다.
+          </p>
+        </details>
+
+        <details class="manual-faq">
+          <summary>Q3. 분석 기록은 어디에 저장되나요?</summary>
+          <p>
+            최근 분석 요약은 현재 브라우저의
+            로컬 저장소에 저장됩니다.
+            메시지 원문은 기록에 저장하지 않습니다.
+            서버에서는 비식별 통계가 별도로
+            저장될 수 있습니다.
+          </p>
+        </details>
+
+        <details class="manual-faq">
+          <summary>Q4. 인터넷 없이 사용할 수 있나요?</summary>
+          <p>
+            이전에 저장된 앱 화면과 기본 안내는
+            오프라인에서도 볼 수 있지만,
+            AI 분석에는 인터넷 연결이 필요합니다.
+          </p>
+        </details>
+
+        <details class="manual-faq">
+          <summary>Q5. 앱 설치 버튼이 보이지 않아요.</summary>
+          <p>
+            브라우저가 설치 기능을 지원하는지
+            확인하세요. PWA 아이콘과 매니페스트
+            설정이 정상적으로 배포되어 있어야 합니다.
+          </p>
+        </details>
+
+        <details class="manual-faq">
+          <summary>Q6. 개인정보가 외부로 전송되나요?</summary>
+          <p>
+            입력 메시지는 분석을 위해 GAS와
+            OpenAI API로 전송됩니다.
+            서버가 일부 개인정보를 자동으로
+            가리지만 완벽하지 않을 수 있으므로
+            입력 전에 직접 삭제해야 합니다.
+          </p>
+        </details>
+      </div>
+
+
+      <!-- 6-8. 종료 -->
+      <div class="manual-section"
+           style="text-align:center">
+
+        <h3>🎉 사용 준비 완료!</h3>
+
+        <p>
+          이제 PhishGuard AI를 활용하여
+          의심스러운 메시지의 위험 신호를
+          분석해 보세요.
+        </p>
+
+        <button class="button"
+                onclick="showScreen('analyze')">
+          AI 분석 시작하기
+        </button>
+
+        <button class="button secondary"
+                style="margin-top:10px"
+                onclick="showScreen('home')">
+          홈으로 돌아가기
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================
+       하단 메뉴
+  ===================================== -->
+
+  <nav class="nav" aria-label="메인 메뉴">
+
+    <button class="active"
+            data-screen="home"
+            onclick="showScreen('home')">
+      <span class="symbol">⌂</span>홈
+    </button>
+
+    <button data-screen="analyze"
+            onclick="showScreen('analyze')">
+      <span class="symbol">⌕</span>AI 분석
+    </button>
+
+    <button data-screen="history"
+            onclick="showScreen('history')">
+      <span class="symbol">▤</span>기록
+    </button>
+
+    <button data-screen="stats"
+            onclick="showScreen('stats')">
+      <span class="symbol">▥</span>통계
+    </button>
+
+    <button data-screen="settings"
+            onclick="showScreen('settings')">
+      <span class="symbol">⚙</span>설정
+    </button>
+
+  </nav>
+
+</div>
+
+
+<script>
+"use strict";
+
+// ==========================================
+// 1. 기본 설정
+// ==========================================
+
+// 본인의 GAS 웹앱 주소를 입력하세요.
+const GAS_WEB_APP_URL =
+  "";https://script.google.com/macros/s/AKfycbx-FYmKC0Jnv7mBuum-CT4LbDoo8Vjb0mtLglye0EFlK4hMQIKEKHCpd0o2mpgZ3MhdZA/exec
+
+const STORAGE_KEY = "phishguard_history_v1";
+const MAX_HISTORY = 50;
+
+const EXAMPLES = [
+  "[택배 안내] 배송지 오류로 반송 예정입니다. 지금 인증번호를 입력하세요.",
+
+  "[은행 안내] 계좌가 정지될 수 있습니다. 즉시 비밀번호를 입력해 주세요.",
+
+  "안녕하세요. 내일 동아리 활동은 오후 3시에 시작합니다. 준비물을 확인해 주세요."
+];
+
+const RISK_NAMES = {
+  low: "낮은 위험 신호",
+  medium: "주의 필요",
+  high: "높은 위험 신호",
+  unknown: "판단 어려움"
+};
+
+const CATEGORY_NAMES = {
+  delivery: "택배·배송",
+  finance: "금융·결제",
+  government: "공공기관",
+  account: "계정·인증",
+  shopping: "쇼핑·거래",
+  other: "기타",
+  unknown: "분류 불가"
+};
+
+let bridgeFrame = null;
+let bridgeOrigin = null;
+let bridgeReady = false;
+let bridgeWaitTimer = null;
+let pending = new Map();
+let analyzing = false;
+let deferredInstall = null;
+
+
+// ==========================================
+// 2. 화면 전환
+// ==========================================
+
+function showScreen(name) {
+  const target = document.getElementById(name);
+
+  if (!target || !target.classList.contains("screen")) {
+    return;
+  }
+
+  document.querySelectorAll(".screen").forEach(el => {
+    el.classList.toggle("active", el.id === name);
+  });
+
+  document.querySelectorAll(".nav button").forEach(btn => {
+    btn.classList.toggle(
+      "active",
+      btn.dataset.screen === name
+    );
+  });
+
+  if (name === "history") renderHistory();
+  if (name === "stats") renderStats();
+
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+
+// ==========================================
+// 3. 메시지 입력
+// ==========================================
+
+const input = document.getElementById("messageInput");
+
+input.addEventListener("input", () => {
+  document.getElementById("charCount").textContent =
+    input.value.length + " / 2500자";
+});
+
+function loadExample(index) {
+  input.value = EXAMPLES[index];
+  input.dispatchEvent(new Event("input"));
+
+  document.getElementById("resultBox")
+    .classList.remove("visible");
+}
+
+function clearInput() {
+  input.value = "";
+  input.dispatchEvent(new Event("input"));
+
+  document.getElementById("resultBox")
+    .classList.remove("visible");
+
+  showStatus("", false);
+}
+
+
+// ==========================================
+// 4. GAS 서버 연결
+// ==========================================
+
+function validGasOrigin(origin) {
+  try {
+    const url = new URL(origin);
+
+    return url.protocol === "https:" && (
+      url.hostname === "script.google.com" ||
+      url.hostname === "script.googleusercontent.com" ||
+      url.hostname.endsWith(".googleusercontent.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function configured() {
+  return /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/
+    .test(GAS_WEB_APP_URL);
+}
+
+function setServerStatus(message) {
+  document.getElementById("serverStatus")
+    .textContent = message;
+}
+
+function connectBridge() {
+  bridgeReady = false;
+  bridgeOrigin = null;
+
+  clearTimeout(bridgeWaitTimer);
+
+  for (const [id, request] of pending) {
+    clearTimeout(request.timer);
+    request.reject(
+      new Error("서버 연결이 초기화되었습니다.")
+    );
+    pending.delete(id);
+  }
+
+  if (bridgeFrame) {
+    bridgeFrame.remove();
+    bridgeFrame = null;
+  }
+
+  if (!configured()) {
+    setServerStatus("GAS 웹앱 URL을 설정해야 합니다.");
+    return;
+  }
+
+  setServerStatus("GAS 서버에 연결 중입니다.");
+
+  const frame = document.createElement("iframe");
+
+  frame.title = "PhishGuard 서버 연결";
+  frame.style.display = "none";
+  frame.src = GAS_WEB_APP_URL;
+
+  bridgeFrame = frame;
+  document.body.appendChild(frame);
+
+  bridgeWaitTimer = setTimeout(() => {
+    if (!bridgeReady) {
+      setServerStatus(
+        "서버 연결 실패 또는 시간 초과. 배포 권한과 URL을 확인하세요."
+      );
+    }
+  }, 20000);
+}
+
+
+// ==========================================
+// 5. 브리지 메시지 수신
+// ==========================================
+
+window.addEventListener("message", event => {
+  if (!bridgeFrame) return;
+
+  if (event.source !== bridgeFrame.contentWindow) {
+    return;
+  }
+
+  if (!validGasOrigin(event.origin)) return;
+
+  const data = event.data;
+
+  if (!data || typeof data !== "object") return;
+
+  if (data.type === "PHISHGUARD_READY") {
+    bridgeOrigin = event.origin;
+    bridgeReady = true;
+
+    clearTimeout(bridgeWaitTimer);
+    setServerStatus("GAS 서버 브리지 연결 완료");
+    return;
+  }
+
+  if (data.type !== "PHISHGUARD_RESULT") return;
+
+  if (event.origin !== bridgeOrigin) return;
+  if (typeof data.id !== "string") return;
+
+  const request = pending.get(data.id);
+  if (!request) return;
+
+  clearTimeout(request.timer);
+  pending.delete(data.id);
+
+  if (data.ok) {
+    request.resolve(data.result);
+  } else {
+    request.reject(
+      new Error(String(data.error || "분석 실패"))
+    );
+  }
+});
+
+
+// ==========================================
+// 6. 분석 요청 전송
+// ==========================================
+
+function requestAnalysis(text) {
+  return new Promise((resolve, reject) => {
+    if (!bridgeReady || !bridgeOrigin || !bridgeFrame) {
+      reject(new Error(
+        "서버가 연결되지 않았습니다. 설정에서 다시 연결하세요."
+      ));
+      return;
+    }
+
+    const id = crypto.randomUUID();
+
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      reject(
+        new Error("AI 분석 요청 시간이 초과되었습니다.")
+      );
+    }, 45000);
+
+    pending.set(id, {
+      resolve: resolve,
+      reject: reject,
+      timer: timer
+    });
+
+    bridgeFrame.contentWindow.postMessage({
+      type: "PHISHGUARD_ANALYZE",
+      id: id,
+      text: text
+    }, bridgeOrigin);
+  });
+}
+
+
+// ==========================================
+// 7. 분석 실행
+// ==========================================
+
+async function startAnalysis() {
+  if (analyzing) return;
+
+  const text = input.value.trim();
+
+  if (!text) {
+    showStatus("분석할 메시지를 입력하세요.", true);
+    return;
+  }
+
+  if (text.length > 2500) {
+    showStatus("2500자 이하로 입력하세요.", true);
+    return;
+  }
+
+  if (!bridgeReady) {
+    showStatus(
+      "GAS 서버에 연결되지 않았습니다.",
+      true
+    );
+    return;
+  }
+
+  analyzing = true;
+
+  const button = document.getElementById("analyzeButton");
+  button.disabled = true;
+  button.textContent = "AI 분석 중...";
+
+  document.getElementById("resultBox")
+    .classList.remove("visible");
+
+  showStatus(
+    "GPT가 메시지의 위험 신호를 분석하고 있습니다.",
+    true
+  );
+
+  try {
+    const result = await requestAnalysis(text);
+
+    renderResult(result);
+    saveHistory(result);
+
+    if (result.ai_status === "fallback") {
+      showStatus(
+        "AI 분석에 실패하여 규칙 기반 결과만 제공됩니다.",
+        true
+      );
+    } else {
+      showStatus("분석이 완료되었습니다.", true);
+    }
+
+  } catch (error) {
+    console.error("Analysis failed:", error);
+
+    showStatus(
+      "분석 요청에 실패했습니다. 서버 연결 및 API 설정을 확인하세요.",
+      true
+    );
+
+  } finally {
+    analyzing = false;
+    button.disabled = false;
+    button.textContent = "🔎 AI 위험 분석하기";
+  }
+}
+
+function showStatus(message, visible) {
+  const el = document.getElementById("analysisStatus");
+
+  el.textContent = message;
+  el.classList.toggle("hidden", !visible);
+}
+
+
+// ==========================================
+// 8. 분석 결과 표시
+// ==========================================
+
+function renderList(elementId, items) {
+  const ul = document.getElementById(elementId);
+
+  ul.replaceChildren();
+
+  const data = Array.isArray(items) && items.length
+    ? items
+    : ["확인된 항목이 없습니다."];
+
+  data.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = String(item);
+    ul.appendChild(li);
+  });
+}
+
+function renderResult(result) {
+  const score = Math.min(
+    100,
+    Math.max(0, Number(result.risk_score) || 0)
+  );
+
+  const level = RISK_NAMES[result.risk_level]
+    ? result.risk_level
+    : "unknown";
+
+  const badge = document.getElementById("riskBadge");
+
+  badge.className = "badge " + level;
+  badge.textContent = RISK_NAMES[level];
+
+  document.getElementById("riskScore").textContent =
+    score;
+
+  const bar = document.getElementById("riskProgress");
+  bar.style.width = score + "%";
+  bar.className = "progress-fill " + level;
+
+  document.getElementById("resultSummary").textContent =
+    result.summary || "분석 요약이 없습니다.";
+
+  document.getElementById("resultCategory").textContent =
+    CATEGORY_NAMES[result.category] || "분류 불가";
+
+  document.getElementById("aiMode").textContent =
+    result.ai_status === "success"
+      ? "분석 방식: 규칙 기반 분석 + GPT"
+      : "분석 방식: 규칙 기반 분석만 사용";
+
+  renderList("reasonList", result.reasons);
+
+  renderList(
+    "actionList",
+    result.recommended_actions
+  );
+
+  document.getElementById("resultBox")
+    .classList.add("visible");
+}
+
+
+// ==========================================
+// 9. 로컬 기록 관리
+// ==========================================
+
+function getHistory() {
+  try {
+    const value = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
+    );
+
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(result) {
+  const history = getHistory();
+
+  history.unshift({
+    id: String(result.id || ""),
+    date: String(result.analyzed_at || ""),
+    score: Number(result.risk_score) || 0,
+    level: String(result.risk_level || "unknown"),
+    category: String(result.category || "unknown"),
+    aiStatus: String(result.ai_status || "unknown"),
+
+    codes: Array.isArray(result.reason_codes)
+      ? result.reason_codes
+          .filter(x => typeof x === "string")
+          .slice(0, 10)
+      : []
+  });
+
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        history.slice(0, MAX_HISTORY)
+      )
+    );
+  } catch {
+    console.warn(
+      "분석 기록을 저장할 수 없습니다."
+    );
+  }
+}
+
+function clearHistory() {
+  if (!confirm(
+    "이 기기에 저장된 분석 기록을 삭제할까요?"
+  )) {
+    return;
+  }
+
+  localStorage.removeItem(STORAGE_KEY);
+
+  renderHistory();
+  renderStats();
+}
+
+
+// ==========================================
+// 10. 분석 기록 화면
+// ==========================================
+
+function renderHistory() {
+  const history = getHistory();
+
+  const container =
+    document.getElementById("historyList");
+
+  container.replaceChildren();
+
+  if (!history.length) {
+    const p = document.createElement("p");
+
+    p.className = "muted";
+    p.textContent =
+      "아직 저장된 분석 기록이 없습니다.";
+
+    container.appendChild(p);
+    return;
+  }
+
+  history.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const badge = document.createElement("span");
+
+    badge.className = "badge " + (
+      RISK_NAMES[item.level]
+        ? item.level
+        : "unknown"
+    );
+
+    badge.textContent =
+      RISK_NAMES[item.level] || "판단 어려움";
+
+    const p = document.createElement("p");
+
+    const date = new Date(item.date);
+
+    const formatted = isNaN(date.getTime())
+      ? "날짜 정보 없음"
+      : date.toLocaleString("ko-KR");
+
+    p.textContent =
+      formatted +
+      " · 규칙 점수: " +
+      item.score +
+      "점";
+
+    row.appendChild(badge);
+    row.appendChild(p);
+
+    container.appendChild(row);
+  });
+}
+
+
+// ==========================================
+// 11. 통계 화면
+// ==========================================
+
+function renderStats() {
+  const history = getHistory();
+
+  const counts = {
+    low: 0,
+    medium: 0,
+    high: 0,
+    unknown: 0
+  };
+
+  const signalCounts = {};
+
+  history.forEach(item => {
+    if (counts[item.level] !== undefined) {
+      counts[item.level]++;
+    } else {
+      counts.unknown++;
+    }
+
+    (item.codes || []).forEach(code => {
+      signalCounts[code] =
+        (signalCounts[code] || 0) + 1;
+    });
+  });
+
+  document.getElementById("totalCount").textContent =
+    history.length;
+
+  document.getElementById("highCount").textContent =
+    counts.high;
+
+  document.getElementById("mediumCount").textContent =
+    counts.medium;
+
+  document.getElementById("lowCount").textContent =
+    counts.low;
+
+  const bars = document.getElementById("statsBars");
+
+  bars.replaceChildren();
+
+  ["high", "medium", "low", "unknown"].forEach(level => {
+    const percentage = history.length
+      ? counts[level] / history.length * 100
+      : 0;
+
+    const row = document.createElement("div");
+    row.className = "bar-row";
+
+    const label = document.createElement("div");
+    label.className = "bar-label";
+
+    const name = document.createElement("span");
+    name.textContent = RISK_NAMES[level];
+
+    const value = document.createElement("span");
+    value.textContent =
+      percentage.toFixed(1) + "%";
+
+    label.append(name, value);
+
+    const track = document.createElement("div");
+    track.className = "progress";
+
+    const fill = document.createElement("div");
+
+    fill.className =
+      "progress-fill " + level;
+
+    fill.style.width =
+      percentage + "%";
+
+    track.appendChild(fill);
+    row.append(label, track);
+    bars.appendChild(row);
+  });
+
+  const signals =
+    document.getElementById("signalStats");
+
+  signals.replaceChildren();
+
+  const sorted = Object.entries(signalCounts)
+    .sort((a, b) => b[1] - a[1]);
+
+  const names = {
+    PERSONAL_INFO: "개인정보 요구",
+    PAYMENT: "금전 관련 표현",
+    URL: "외부 링크",
+    IMPERSONATION: "기관 명칭",
+    URGENCY: "긴급 행동 유도"
+  };
+
+  if (!sorted.length) {
+    signals.textContent =
+      "분석된 위험 신호가 없습니다.";
+    return;
+  }
+
+  sorted.forEach(([code, count]) => {
+    const p = document.createElement("p");
+
+    p.textContent =
+      (names[code] || code) +
+      ": " +
+      count +
+      "건";
+
+    signals.appendChild(p);
+  });
+}
+
+
+// ==========================================
+// 12. PWA 설치
+// ==========================================
+
+window.addEventListener(
+  "beforeinstallprompt",
+  event => {
+    event.preventDefault();
+    deferredInstall = event;
+  }
+);
+
+async function installApp() {
+  if (deferredInstall) {
+    deferredInstall.prompt();
+    await deferredInstall.userChoice;
+
+    deferredInstall = null;
+    return;
+  }
+
+  alert(
+    "브라우저 메뉴에서 '홈 화면에 추가' 또는 " +
+    "'앱 설치'를 선택해 주세요. " +
+    "설치 메뉴가 없다면 PWA 아이콘과 배포 설정을 확인하세요."
+  );
+}
+
+
+// ==========================================
+// 13. 서비스 워커 등록
+// ==========================================
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .catch(error => {
+        console.warn(
+          "Service Worker 오류:",
+          error
+        );
+      });
+  });
+}
+
+
+// ==========================================
+// 14. 앱 초기 실행
+// ==========================================
+
+window.addEventListener("load", () => {
+  connectBridge();
+  renderHistory();
+  renderStats();
+});
+
+</script>
+<script>
+  window.testButton = function () {
+    alert("JavaScript가 정상 실행되고 있습니다!");
+  };
+
+  window.showScreen = function (name) {
+    const target = document.getElementById(name);
+
+    if (!target) {
+      alert("화면을 찾을 수 없습니다: " + name);
+      return;
+    }
+
+    document.querySelectorAll(".screen").forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+    target.classList.add("active");
+
+    document.querySelectorAll(".nav button").forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.screen === name
+      );
+    });
+
+    window.scrollTo(0, 0);
+  };
+</script>
+</body>
+</html>
